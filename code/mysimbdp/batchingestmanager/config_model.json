@@ -1,0 +1,14 @@
+{
+  "tenant1": {
+    "max_file_size": 50,
+    "file_type": "json",
+    "max_amount_of_data": 1000,
+    "max_number_of_files": 20
+  },
+  "tenant2": {
+    "max_file_size": 10,
+    "file_type": "csv",
+    "max_amount_of_data": 500,
+    "max_number_of_files": 50
+  }
+}
