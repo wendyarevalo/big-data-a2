@@ -1,14 +1,33 @@
 {
-  "tenant1": {
-    "max_file_size": 50,
-    "file_type": "json",
-    "max_amount_of_data": 1000,
-    "max_number_of_files": 20
-  },
-  "tenant2": {
-    "max_file_size": 10,
-    "file_type": "csv",
-    "max_amount_of_data": 500,
-    "max_number_of_files": 50
-  }
+   "tenant1": {
+     "max_file_size": 10,
+     "file_type": "json",
+     "max_amount_of_data": 500,
+     "max_number_of_files": 50,
+     "namespace": "tenant1",
+     "schema": {
+       "created_utc": "timestamp",
+       "ups": "int",
+       "subreddit": "text",
+       "id": "text",
+       "author": "text",
+       "score": "int",
+       "key": "((subreddit, id), ups)"
+     }
+   },
+ "tenant2": {
+     "max_file_size": 50,
+     "file_type": "csv",
+     "max_amount_of_data": 1000,
+     "max_number_of_files": 20,
+     "namespace": "tenant2",
+     "schema": {
+       "created_utc": "timestamp",
+       "subreddit": "text",
+       "id": "text",
+       "author": "text",
+       "body": "int",
+       "key": "((subreddit, id), author)"
+     }
+   }
 }

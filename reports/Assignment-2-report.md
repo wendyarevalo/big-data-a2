@@ -77,3 +77,17 @@ provider.
    Because that information is relevant to me. I design marketing deals for popular authors.
    * Tenant 2: I keep only this fields, __created_utc__ timestamp, __subreddit__ text, __id__ text, __author__ text, __body__ text.
    This information is relevant to me because I process the content of the comments to do sentiment analysis for research purposes.
+3. As a provider, I have a configuration file that includes all my tenant's models, I keep track of how much data they have ingested,
+   how many files, the format they need, among other things (explained in question 1). I don't know how my tenants
+   process their information, but I require that the files that arrive to my client-staging-input-directory have a prefix that matches
+   the tenant namespace and that they do not exceed the limits set in their model.
+   I have a monitor in my folder which will notify my system when there is a new file to be ingested, the file will be processed and inserted into the
+   database unless the file is exceeding any of the requirements. This is done by checking their total files and amount of data ingested that day, this information
+   is stored in their namespace in a table called ingestion_metrics.
+4. Shared parts among tenants:
+   1. coredms - It is a Cassandra cluster.
+   2. client-staging-input-directory - A folder to which tenants will upload their data files.
+
+   Dedicated for each tenant:
+   1. batchingestmanager - According to the parameters in the configuration model, the manager will ingest data diferently to coredms.
+   2. namespace - Each tenant will have a separate namespace in coredms.
