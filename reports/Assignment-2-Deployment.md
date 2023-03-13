@@ -3,7 +3,22 @@
 __Prerequisites__
 
 * Docker
+* Docker compose
 * Python
+* All commands are run inside the _code_ folder
+
+## coredms - Cassandra
+
+For coredms I used the same configuration for Cassandra as in assignment 1. 
+
+To configure Cassandra, I have used the docker-compose.yml file provided in the tutorial
+with the needed modifications to work in my environment. Assuming docker and docker compose
+are installed and running, follow these steps:
+
+1. Start the containers:
+    ```
+   docker-compose -f mysisbdp/coredms/docker-compose.yml up -d
+    ```
 
 ## Send files to client-staging-input-directory
 I used a similar structure from the producers of assignment 1 for the move_to_provider.py files.
