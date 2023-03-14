@@ -34,38 +34,40 @@ As provider, I will have a file with every tenant configuration, so I can easily
    The following configuration file sets two tenants with different needs:
    ```json
    {
-      "tenant1": {
-        "max_file_size": 10,
-        "file_type": ".json",
-        "max_amount_of_data": 500,
-        "max_number_of_files": 50,
-        "namespace": "tenant1",
-        "schema": {
-          "created_utc": "timestamp",
-          "ups": "int",
-          "subreddit": "text",
-          "id": "text",
-          "author": "text",
-          "score": "int",
-          "key": "((subreddit, id), ups)"
-        }
-      },
+   "tenant1": {
+     "max_file_size": 10,
+     "file_type": ".json",
+     "max_amount_of_data": 500,
+     "max_number_of_files": 50,
+     "namespace": "tenant1",
+     "table_name": "comments_upvotes_by_subreddit",
+     "schema": {
+       "created_utc": "timestamp",
+       "ups": "int",
+       "subreddit": "text",
+       "id": "text",
+       "author": "text",
+       "score": "int",
+       "key": "((subreddit, id), ups)"
+     }
+   },
     "tenant2": {
         "max_file_size": 50,
         "file_type": ".csv",
         "max_amount_of_data": 1000,
         "max_number_of_files": 20,
         "namespace": "tenant2",
+        "table_name": "comments_by_subreddit",
         "schema": {
           "created_utc": "timestamp",
           "subreddit": "text",
           "id": "text",
           "author": "text",
-          "body": "int",
+          "body": "text",
           "key": "((subreddit, id), author)"
         }
       }
-   }   
+   }
    ```
    _Tenant 1_ will have smaller files and needs less space for their files because they only analyze the up votes of comments in 
 different subreddits to reach out to authors for marketing purposes. 
@@ -83,11 +85,33 @@ provider.
    the tenant namespace and that they do not exceed the limits set in their model.
    I have a watchdog monitor in my folder which will notify my system when there is a new file to be ingested, the file will be processed and inserted into the
    database unless the file is exceeding any of the requirements. This is done by checking their total files and amount of data ingested that day, this information
-   is stored in their namespace in a table called ingestion_metrics.
-4. Shared parts among tenants:
-   1. coredms - It is a Cassandra cluster.
-   2. client-staging-input-directory - A folder to which tenants will upload their data files.
+   is stored in their namespace in a table called batch_ingestion_metrics.
+4. * Shared parts among tenants:
+      1. coredms - It is a Cassandra cluster.
+      2. client-staging-input-directory - A folder to which tenants will upload their data files.
 
-   Dedicated for each tenant:
-   1. batchingestmanager - According to the parameters in the configuration model, the manager will ingest data diferently to coredms.
-   2. namespace - Each tenant will have a separate namespace in coredms.
+   * Dedicated for each tenant:
+      1. batchingestmanager - According to the parameters in the configuration model, the manager will ingest data diferently to coredms.
+      2. namespace - Each tenant will have a separate namespace in coredms.
+
+   * There are two clientbatchingestapp to test. 
+     * The first one is in the folder [client1](../code/client1). 
+     
+     This client simply cleans its data to send only the rows they need in a json format. 
+     The file arrives to [mysimbdp-batchingestmanager](../code/mysimbdp/batchingestmanager/batchingestmanager.py) and there it gets validated
+      against the configuration model that corresponds to tenant1, if the file is json, under 10 MB, the amount of data inserted
+      that day is less than 500 MB, and also the number of files inserted that day is less than 50 then the data gets processed as json and gets inserted
+      into coredms. If any of these constraints fail, the ingestion does not proceed.
+     
+     * The second one is in the folder [client2](../code/client1)
+     
+     This client simply cleans its data to send only the rows they need in a csv format. 
+     The file arrives to [mysimbdp-batchingestmanager](../code/mysimbdp/batchingestmanager/batchingestmanager.py) and there it gets validated
+      against the configuration model that corresponds to tenant2, if the file is csv, under 50 MB, the amount of data inserted
+      that day is less than 1000 MB, and also the number of files inserted that day is less than 20 then the data gets processed as csv and gets inserted
+      into coredms. If any of these constraints fail, the ingestion does not proceed.
+
+      > __NOTE:__ It is important to mention that any of the clients are receiving any confirmation message of the ingestion. However, this might get solved
+   with the metrics. They could have a dashboard to check the logs of their namespace in mysimbdp.
+   
+   * 
