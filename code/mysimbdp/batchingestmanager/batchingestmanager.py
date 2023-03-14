@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import time
@@ -72,18 +73,69 @@ def validate(tenant, file_extension, file_size):
             return 1
 
 
-def ingestCsvFile(tenant, file, file_size):
+def create_schema(tenant):
     session.set_keyspace(tenant)
+    with open(args.config_models, "r") as jsonfile:
+        data = json.load(jsonfile)
+        try:
+            model = data[tenant]
+            query = "CREATE TABLE IF NOT EXISTS " + model["table_name"] + " ("
+            for field in model["schema"]:
+                if field != "key":
+                    query += field + " " + model["schema"][field] + ", "
+                else:
+                    query += "PRIMARY KEY " + model["schema"][field] + ")"
+            session.execute(query)
+        except Exception:
+            print(f"Error: {tenant} does not have a configuration model.")
 
-    saveMetrics(tenant, file_size)
 
-
-def ingestJsonFile(tenant, file, file_size):
+def insert_data(tenant, row):
+    create_schema(tenant)
     session.set_keyspace(tenant)
-    saveMetrics(tenant, file_size)
+    with open(args.config_models, "r") as jsonfile:
+        data = json.load(jsonfile)
+        try:
+            model = data[tenant]
+            if model["file_type"] == ".json":
+                row["created_utc"] = datetime.datetime.utcfromtimestamp(row["created_utc"]).strftime("%Y-%m-%d %H:%M:%S")
+                query = "INSERT INTO " + model["table_name"] + " JSON" + "'" + json.dumps(row) + "'"
+                session.execute(query)
+                print("success")
+            else:
+                query = "INSERT INTO " + model["table_name"] + " ("
+                for field in model["schema"]:
+                    if field != "key":
+                        query += field + ","
+                query = query[:-1] + ") VALUES ("
+                for field in range(len(model["schema"]) - 1):
+                    query += "%s,"
+                query = query[:-1] + ")"
+                row[0] = datetime.datetime.utcfromtimestamp(int(row[0])).strftime("%Y-%m-%d %H:%M:%S")
+                session.execute(query, row)
+                print("success")
+        except Exception:
+            print(f"Error: {tenant} does not have a configuration model.")
 
 
-def saveMetrics(tenant, file_size):
+def ingest_csv_file(tenant, file, file_size):
+    with open(file, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        next(csvreader)
+        for row in csvreader:
+            insert_data(tenant, row)
+    save_metrics(tenant, file_size)
+
+
+def ingest_json_file(tenant, file, file_size):
+    with open(file, "r") as jsonfile:
+        data = json.load(jsonfile)
+        for json_item in data:
+            insert_data(tenant, json_item)
+    save_metrics(tenant, file_size)
+
+
+def save_metrics(tenant, file_size):
     session.set_keyspace(tenant)
     insert_query = "INSERT INTO batch_ingestion_metrics (ingestion_time, file_size) VALUES (%s, %s)"
     session.execute(insert_query, (datetime.datetime.now(), file_size))
@@ -98,11 +150,12 @@ class MyEventHandler(FileSystemEventHandler):
         print(f"{tenant} added {input_file_name}{input_file_extension}, with a size of {file_size_mb} MB")
         if validate(tenant, input_file_extension, file_size_mb) == 0:
             if input_file_extension == ".json":
-                ingestJsonFile()
+                ingest_json_file(tenant, event.src_path, file_size_mb)
             else:
-                ingestCsvFile()
+                ingest_csv_file(tenant, event.src_path, file_size_mb)
         else:
             print(f"An error occurred in the ingestion process")
+
 
 event_handler = MyEventHandler()
 observer = Observer()
