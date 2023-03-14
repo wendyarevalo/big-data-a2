@@ -21,7 +21,13 @@ are installed and running, follow these steps:
     ```
 ## Part 1 - Batch Ingestion
 
-First create a virtual environment in python and install python requirements.
+First create a virtual environment in python and install python requirements with these commands
+
+```shell
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
 ### Start batchingestmanager
 To start batch ingest manager run the following command:
@@ -54,3 +60,11 @@ If you want to try the constraints easily then just create/move new files direct
 * Another option is to modify [config_model.json](../code/mysimbdp/batchingestmanager/config_model.json) to smaller values.
 
 To validate that data was inserted, directly query the database from any node. Don't forget to use the correspondant namespace.
+
+#### Test performance
+The performance test is a simple python file that gets data from the table of batch_ingestion_metrics of the specified tenant and 
+calculates the average MB ingestion per second. To run that test simply use this command:
+```shell
+python mysimbdp/performance-metrics/performance.py ../logs/performance.log tenantNumber
+```
+To see the results go to [performance.log](../logs/performance.log).

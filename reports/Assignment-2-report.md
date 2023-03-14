@@ -117,7 +117,13 @@ provider.
      ![constraint_validation_sizes](images/wrong_size_constraints.png)
 
     > __NOTE:__ It is important to mention that none of the clients are receiving any confirmation message of the ingestion. However, this might get solved with the metrics. They could have a dashboard to check the logs of their namespace in mysimbdp.
-
+   * To show the average performance I created a simple script that collects data from the batch_ingestion_table for each tenant and calculates the 
+   average MB per second.
+   ![batch_metrics](images/average.png)
+   I think tenant 2 is able to process more data than tenant1 because the strategy I am using for each file extension is different. While json is inserted
+   with a dedicated cql statement, csv rows are inserted the traditional way. These stadistics show that csv is faster. Also, CSV files can contain more information
+   than json files for the same amount of MB.
+   
 5. I am currently saving data related to ingestion (success and failures) in the [ingestion.log](../logs/ingestion.log) file. I am logging:
    1. The beginning of the ingestion
    2. The end of ingestion

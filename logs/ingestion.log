@@ -1,35 +1,14 @@
-2023-03-14 16:54:33,275 - WARNING: Failed to create connection pool for new host 172.20.0.3:9042:
-Traceback (most recent call last):
-  File "cassandra/cluster.py", line 3175, in cassandra.cluster.Session.add_or_renew_pool.run_add_or_renew_pool
-  File "cassandra/pool.py", line 402, in cassandra.pool.HostConnection.__init__
-  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
-  File "cassandra/connection.py", line 831, in cassandra.connection.Connection.factory
-  File "/Users/wendyarevalo/Library/CloudStorage/OneDrive-Personal/Documents OneDrive/assignment-2-100517312/venv/lib/python3.9/site-packages/cassandra/io/asyncorereactor.py", line 344, in __init__
-    self._connect_socket()
-  File "cassandra/connection.py", line 898, in cassandra.connection.Connection._connect_socket
-OSError: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
-2023-03-14 16:54:33,280 - WARNING: Host 172.20.0.3:9042 has been marked down
-2023-03-14 16:54:39,315 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 1.9 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 16:54:43,152 - INFO: tenant23 Added tenant23-file.json, with a size of 0.0 MB
 2023-03-14 16:54:43,154 - ERROR: tenant23 Does not exist in the configuration file.
 2023-03-14 16:54:43,154 - ERROR: tenant23 An error occurred in the validation process
-2023-03-14 16:54:46,292 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 3.84 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
-2023-03-14 16:54:55,228 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 8.64 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
-2023-03-14 16:55:08,933 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 16.16 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
-2023-03-14 16:55:30,186 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 28.8 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 16:55:52,190 - INFO: tenant1 Added tenant1-1000rows.json, with a size of 0.14211177825927734 MB
 2023-03-14 16:55:53,547 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 16:55:53,550 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 16:55:54,290 - INFO: tenant1 Started ingestion of json file at 2023-03-14 16:55:54.290950
 2023-03-14 16:55:58,209 - INFO: tenant1 Finished ingesting tenant1-1000rows.json at 2023-03-14 16:55:58.207808 a total of 0.14211177825927734 MB where processed
-2023-03-14 16:56:03,990 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 63.36 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
-2023-03-14 16:59:28,438 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 2.3 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
-2023-03-14 16:59:35,828 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 3.84 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 16:59:42,243 - INFO: tenant23 Added tenant23-file.json, with a size of 0.0 MB
 2023-03-14 16:59:42,244 - ERROR: tenant23 Does not exist in the configuration file.
 2023-03-14 16:59:42,244 - ERROR: tenant23 An error occurred in the validation process
-2023-03-14 16:59:44,772 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 9.12 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
-2023-03-14 16:59:58,977 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 15.04 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 16:59:59,395 - INFO: tenant2 Added tenant2-1000rows.csv, with a size of 0.19403839111328125 MB
 2023-03-14 17:00:00,549 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:00:00,554 - WARNING: Server warning: Aggregation query used without partition key
@@ -41,7 +20,6 @@ OSError: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: ti
 2023-03-14 17:00:47,791 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:00:47,793 - INFO: tenant2 Started ingestion of csv file at 2023-03-14 17:00:47.793332
 2023-03-14 17:00:52,099 - INFO: tenant2 Finished ingesting tenant2-1000rows2.csv at 2023-03-14 17:00:52.097857 a total of 0.21854019165039062 MB where processed
-2023-03-14 17:00:54,219 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 67.84 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 17:01:14,225 - INFO: tenant1 Added tenant1-1000rows2.json, with a size of 0.14217662811279297 MB
 2023-03-14 17:01:14,238 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:01:14,241 - WARNING: Server warning: Aggregation query used without partition key
@@ -52,7 +30,6 @@ OSError: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: ti
 2023-03-14 17:01:50,364 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:01:50,366 - INFO: tenant1 Started ingestion of json file at 2023-03-14 17:01:50.366813
 2023-03-14 17:01:54,084 - INFO: tenant1 Finished ingesting tenant1-1000rows3.json at 2023-03-14 17:01:54.082210 a total of 0.1420755386352539 MB where processed
-2023-03-14 17:02:07,066 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 117.76 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 17:02:23,396 - INFO: tenant2 Added tenant2-1000rows3.csv, with a size of 0.20837020874023438 MB
 2023-03-14 17:02:23,406 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:02:23,408 - WARNING: Server warning: Aggregation query used without partition key
@@ -63,16 +40,13 @@ OSError: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: ti
 2023-03-14 17:03:12,145 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:03:12,146 - INFO: tenant1 Started ingestion of json file at 2023-03-14 17:03:12.146844
 2023-03-14 17:03:54,302 - INFO: tenant1 Finished ingesting tenant1-10000rows.json at 2023-03-14 17:03:54.300365 a total of 1.4203252792358398 MB where processed
-2023-03-14 17:04:09,860 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 238.08 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 17:05:03,894 - INFO: tenant2 Added tenant2-10000rows.csv, with a size of 1.8295812606811523 MB
 2023-03-14 17:05:03,906 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:05:03,909 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:05:03,911 - INFO: tenant2 Started ingestion of csv file at 2023-03-14 17:05:03.911611
 2023-03-14 17:05:44,486 - INFO: tenant2 Finished ingesting tenant2-10000rows.csv at 2023-03-14 17:05:44.484365 a total of 1.8295812606811523 MB where processed
-2023-03-14 17:08:12,989 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 547.84 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
 2023-03-14 17:09:14,823 - INFO: tenant2 Added tenant2-100000rows.csv, with a size of 17.455323219299316 MB
 2023-03-14 17:09:14,834 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:09:14,837 - WARNING: Server warning: Aggregation query used without partition key
 2023-03-14 17:09:14,839 - INFO: tenant2 Started ingestion of csv file at 2023-03-14 17:09:14.839655
 2023-03-14 17:16:09,774 - INFO: tenant2 Finished ingesting tenant2-100000rows.csv at 2023-03-14 17:16:09.772099 a total of 17.455323219299316 MB where processed
-2023-03-14 17:17:25,922 - WARNING: Error attempting to reconnect to 172.20.0.3:9042, scheduling retry in 600.0 seconds: [Errno None] Tried connecting to [('172.20.0.3', 9042)]. Last error: timed out
