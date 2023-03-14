@@ -110,8 +110,10 @@ provider.
       against the configuration model that corresponds to tenant2, if the file is csv, under 50 MB, the amount of data inserted
       that day is less than 1000 MB, and also the number of files inserted that day is less than 20 then the data gets processed as csv and gets inserted
       into coredms. If any of these constraints fail, the ingestion does not proceed.
+ 
+     * Here is a screenshot of the logs when the constraints fail, they were modified, so they fail faster.
+     ![constraint_validation](images/constraint_validation.png)
 
-      > __NOTE:__ It is important to mention that any of the clients are receiving any confirmation message of the ingestion. However, this might get solved
-   with the metrics. They could have a dashboard to check the logs of their namespace in mysimbdp.
+> __NOTE:__ It is important to mention that none of the clients are receiving any confirmation message of the ingestion. However, this might get solved with the metrics. They could have a dashboard to check the logs of their namespace in mysimbdp.
    
    * 

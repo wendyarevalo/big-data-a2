@@ -8,6 +8,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import argparse
 from cassandra.cluster import Cluster
+import logging
 
 # cluster = Cluster(['cassandra1', 'cassandra2', 'cassandra3'])
 cluster = Cluster()
@@ -16,6 +17,7 @@ session = cluster.connect()
 parser = argparse.ArgumentParser()
 parser.add_argument("staging_folder", help="Path to staging folder in mysimbdp")
 parser.add_argument("config_models", help="Path to configuration models file")
+parser.add_argument("log_file", help="Path to log file")
 args = parser.parse_args()
 
 if not os.path.isdir(args.staging_folder):
@@ -25,6 +27,13 @@ if not os.path.isdir(args.staging_folder):
 if not os.path.isfile(args.config_models):
     print(f"Error: File '{args.config_models}' does not exist.")
     exit()
+
+if not os.path.isfile(args.log_file):
+    print(f"Error: File '{args.log_file}' does not exist.")
+    exit()
+
+logging.basicConfig(filename=args.log_file, encoding='utf-8', level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s: %(message)s")
 
 watch_dir = args.staging_folder
 
@@ -44,10 +53,10 @@ def validate(tenant, file_extension, file_size):
                             "PRIMARY KEY (ingestion_time)"
                             ")")
             if model["file_type"] != file_extension:
-                print(f"Error: The extension '{file_extension}' is not supported for {tenant}.")
+                logging.error(f"{tenant} The extension '{file_extension}' is not supported")
                 return 1
             if file_size > model["max_file_size"]:
-                print(f"Error: This file exceeds the limit of file size set for {tenant}.")
+                logging.error(f"{tenant} {file_size} MB exceeds the limit of file size of {model['max_file_size']} MB")
                 return 1
 
             query = "SELECT SUM(file_size) FROM batch_ingestion_metrics WHERE ingestion_time >= %s AND ingestion_time <= %s ALLOW FILTERING"
@@ -59,17 +68,19 @@ def validate(tenant, file_extension, file_size):
                                                         datetime.datetime.today()]).one()
 
             if total_size_last_day[0] > model["max_amount_of_data"]:
-                print(f"Error: This file exceeds the limit of total size per day set for {tenant}.")
+                logging.error(
+                    f"{tenant} The limit per day ({model['max_amount_of_data']} MB) has been reached. Current size is {total_size_last_day[0]}")
                 return 1
 
             if files_in_last_day[0] > model["max_number_of_files"]:
-                print(f"Error: This file exceeds the limit of files per day set for {tenant}.")
+                logging.error(
+                    f"{tenant} The limit of files per day ({model['max_number_of_files']}) has been reached. Current files is {files_in_last_day[0]}")
                 return 1
 
             return 0
 
-        except Exception:
-            print(f"Error: {tenant} does not have a configuration model.")
+        except Exception as e:
+            logging.error(f"{tenant} an error occurred during validation {e}")
             return 1
 
 
@@ -86,8 +97,8 @@ def create_schema(tenant):
                 else:
                     query += "PRIMARY KEY " + model["schema"][field] + ")"
             session.execute(query)
-        except Exception:
-            print(f"Error: {tenant} does not have a configuration model.")
+        except Exception as e:
+            logging.error(f"{tenant} an error occurred in the creation of the schema {e}")
 
 
 def insert_data(tenant, row):
@@ -98,7 +109,8 @@ def insert_data(tenant, row):
         try:
             model = data[tenant]
             if model["file_type"] == ".json":
-                row["created_utc"] = datetime.datetime.utcfromtimestamp(row["created_utc"]).strftime("%Y-%m-%d %H:%M:%S")
+                row["created_utc"] = datetime.datetime.utcfromtimestamp(row["created_utc"]).strftime(
+                    "%Y-%m-%d %H:%M:%S")
                 query = "INSERT INTO " + model["table_name"] + " JSON" + "'" + json.dumps(row) + "'"
                 session.execute(query)
             else:
@@ -112,33 +124,37 @@ def insert_data(tenant, row):
                 query = query[:-1] + ")"
                 row[0] = datetime.datetime.utcfromtimestamp(int(row[0])).strftime("%Y-%m-%d %H:%M:%S")
                 session.execute(query, row)
-        except Exception:
-            print(f"Error: {tenant} does not have a configuration model.")
+        except Exception as e:
+            logging.error(f"{tenant} an error occurred during ingestion {e}")
 
 
 def ingest_csv_file(tenant, file, file_size):
+    start_time = datetime.datetime.now()
+    logging.info(f"{tenant} Started ingestion of csv file at {start_time}")
     with open(file, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         next(csvreader)
         for row in csvreader:
             insert_data(tenant, row)
-    print("Ingested successfully")
     save_metrics(tenant, file_size)
 
 
 def ingest_json_file(tenant, file, file_size):
+    start_time = datetime.datetime.now()
+    logging.info(f"{tenant} Started ingestion of json file at {start_time}")
     with open(file, "r") as jsonfile:
         data = json.load(jsonfile)
         for json_item in data:
             insert_data(tenant, json_item)
-    print("Ingested successfully")
     save_metrics(tenant, file_size)
 
 
 def save_metrics(tenant, file_size):
     session.set_keyspace(tenant)
     insert_query = "INSERT INTO batch_ingestion_metrics (ingestion_time, file_size) VALUES (%s, %s)"
-    session.execute(insert_query, (datetime.datetime.now(), file_size))
+    finished_time = datetime.datetime.now()
+    session.execute(insert_query, (finished_time, file_size))
+    logging.info(f"{tenant} Finished ingestion at {finished_time} a total of {file_size}")
 
 
 class MyEventHandler(FileSystemEventHandler):
@@ -147,14 +163,14 @@ class MyEventHandler(FileSystemEventHandler):
         tenant = input_file_name.split("-")[0]
         time.sleep(1)
         file_size_mb = os.path.getsize(event.src_path) / (1024.0 * 1024.0)
-        print(f"{tenant} added {input_file_name}{input_file_extension}, with a size of {file_size_mb} MB")
+        logging.info(f"{tenant} Added {input_file_name}{input_file_extension}, with a size of {file_size_mb} MB")
         if validate(tenant, input_file_extension, file_size_mb) == 0:
             if input_file_extension == ".json":
                 ingest_json_file(tenant, event.src_path, file_size_mb)
             else:
                 ingest_csv_file(tenant, event.src_path, file_size_mb)
         else:
-            print(f"An error occurred in the ingestion process")
+            logging.error(f"{tenant} An error occurred in the validation process")
 
 
 event_handler = MyEventHandler()
