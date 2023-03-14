@@ -101,7 +101,6 @@ def insert_data(tenant, row):
                 row["created_utc"] = datetime.datetime.utcfromtimestamp(row["created_utc"]).strftime("%Y-%m-%d %H:%M:%S")
                 query = "INSERT INTO " + model["table_name"] + " JSON" + "'" + json.dumps(row) + "'"
                 session.execute(query)
-                print("success")
             else:
                 query = "INSERT INTO " + model["table_name"] + " ("
                 for field in model["schema"]:
@@ -113,7 +112,6 @@ def insert_data(tenant, row):
                 query = query[:-1] + ")"
                 row[0] = datetime.datetime.utcfromtimestamp(int(row[0])).strftime("%Y-%m-%d %H:%M:%S")
                 session.execute(query, row)
-                print("success")
         except Exception:
             print(f"Error: {tenant} does not have a configuration model.")
 
@@ -124,6 +122,7 @@ def ingest_csv_file(tenant, file, file_size):
         next(csvreader)
         for row in csvreader:
             insert_data(tenant, row)
+    print("Ingested successfully")
     save_metrics(tenant, file_size)
 
 
@@ -132,6 +131,7 @@ def ingest_json_file(tenant, file, file_size):
         data = json.load(jsonfile)
         for json_item in data:
             insert_data(tenant, json_item)
+    print("Ingested successfully")
     save_metrics(tenant, file_size)
 
 
