@@ -111,9 +111,36 @@ provider.
       that day is less than 1000 MB, and also the number of files inserted that day is less than 20 then the data gets processed as csv and gets inserted
       into coredms. If any of these constraints fail, the ingestion does not proceed.
  
-     * Here is a screenshot of the logs when the constraints fail, they were modified, so they fail faster.
-     ![constraint_validation](images/constraint_validation.png)
+     * Here are screenshots of the logs in [ingestion.log](../logs/ingestion.log) when the constraints fail, they were modified to smaller constraints, so they fail faster.
+     ![constraint_validation_tenant](images/wrong_tenant.png)
+     ![constraint_validation_format](images/wrong_format.png)
+     ![constraint_validation_sizes](images/wrong_size_constraints.png)
 
-> __NOTE:__ It is important to mention that none of the clients are receiving any confirmation message of the ingestion. However, this might get solved with the metrics. They could have a dashboard to check the logs of their namespace in mysimbdp.
+    > __NOTE:__ It is important to mention that none of the clients are receiving any confirmation message of the ingestion. However, this might get solved with the metrics. They could have a dashboard to check the logs of their namespace in mysimbdp.
+
+5. I am currently saving data related to ingestion (success and failures) in the [ingestion.log](../logs/ingestion.log) file. I am logging:
+   1. The beginning of the ingestion
+   2. The end of ingestion
+   3. The size of the file ingested
+   4. Errors in the validation of constraints
+   5. Errors during ingestion to Cassandra
    
-   * 
+   A successful ingestion looks like this:
+   ![success](images/success.png)
+   
+    A failed ingestion for validation was shown previously.
+
+    I am also saving data in each tenant's name space, in the table batch_ingestion_metrics. I use that information to check if
+    any tenant have exceeded the daily amount of data they paid for, and to get metrics on performance.
+    1. The beginning of the ingestion
+    2. The end of ingestion
+    3. The name of the file ingested
+    4. The size of the file ingested
+   
+    Some stored data look like this:
+    
+    ![batch_metrics_table](images/batch_metrics_table.png)
+    
+    This information can be useful to tenants too. They can monitor their daily data ingestion, so they can decide to pay for more capabilities. Also, to keep
+    track of the files that were successfully ingested, and those that weren't, so they can send them again.
+    

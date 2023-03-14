@@ -41,51 +41,57 @@ watch_dir = args.staging_folder
 def validate(tenant, file_extension, file_size):
     with open(args.config_models, "r") as jsonfile:
         data = json.load(jsonfile)
-        try:
-            model = data[tenant]
-            session.execute("CREATE KEYSPACE IF NOT EXISTS " + model["namespace"] + " WITH REPLICATION = "
-                                                                                    "{'class': 'SimpleStrategy', "
-                                                                                    "'replication_factor': 3}")
-            session.set_keyspace(model["namespace"])
-            session.execute("CREATE TABLE IF NOT EXISTS batch_ingestion_metrics ("
-                            "ingestion_time timestamp,"
-                            "file_size float,"
-                            "PRIMARY KEY (ingestion_time)"
-                            ")")
-            if model["file_type"] != file_extension:
-                logging.error(f"{tenant} The extension '{file_extension}' is not supported")
+        if tenant in data:
+            try:
+                model = data[tenant]
+                session.execute("CREATE KEYSPACE IF NOT EXISTS " + model["namespace"] + " WITH REPLICATION = "
+                                                                                        "{'class': 'SimpleStrategy', "
+                                                                                        "'replication_factor': 3}")
+                session.set_keyspace(model["namespace"])
+                session.execute("CREATE TABLE IF NOT EXISTS batch_ingestion_metrics ("
+                                "ingestion_time_start timestamp,"
+                                "ingestion_time_end timestamp,"
+                                "file_name text,"
+                                "file_size float,"
+                                "PRIMARY KEY (file_name)"
+                                ")")
+                if model["file_type"] != file_extension:
+                    logging.error(f"{tenant} The extension '{file_extension}' is not supported")
+                    return 1
+                if file_size > model["max_file_size"]:
+                    logging.error(
+                        f"{tenant} {file_size} MB exceeds the limit of file size of {model['max_file_size']} MB")
+                    return 1
+
+                query = "SELECT SUM(file_size) FROM batch_ingestion_metrics WHERE ingestion_time_start >= %s AND ingestion_time_start <= %s ALLOW FILTERING"
+                total_size_last_day = session.execute(query, [(datetime.datetime.today() - timedelta(days=1)),
+                                                              datetime.datetime.today()]).one()
+
+                query = "SELECT COUNT(*) FROM batch_ingestion_metrics WHERE ingestion_time_start >= %s AND ingestion_time_start <= %s ALLOW FILTERING"
+                files_in_last_day = session.execute(query, [(datetime.datetime.today() - timedelta(days=1)),
+                                                            datetime.datetime.today()]).one()
+
+                if total_size_last_day[0] >= model["max_amount_of_data"]:
+                    logging.error(
+                        f"{tenant} The limit per day ({model['max_amount_of_data']} MB) has been reached. Current size is {total_size_last_day[0]} MB")
+                    return 1
+
+                if files_in_last_day[0] >= model["max_number_of_files"]:
+                    logging.error(
+                        f"{tenant} The limit of files per day ({model['max_number_of_files']}) has been reached. Current files is {files_in_last_day[0]}")
+                    return 1
+
+                create_schema(tenant)
+                return 0
+
+            except Exception as e:
+                logging.error(f"{tenant} an error occurred during validation {e}")
                 return 1
-            if file_size > model["max_file_size"]:
-                logging.error(f"{tenant} {file_size} MB exceeds the limit of file size of {model['max_file_size']} MB")
-                return 1
-
-            query = "SELECT SUM(file_size) FROM batch_ingestion_metrics WHERE ingestion_time >= %s AND ingestion_time <= %s ALLOW FILTERING"
-            total_size_last_day = session.execute(query, [(datetime.datetime.today() - timedelta(days=1)),
-                                                          datetime.datetime.today()]).one()
-
-            query = "SELECT COUNT(*) FROM batch_ingestion_metrics WHERE ingestion_time >= %s AND ingestion_time <= %s ALLOW FILTERING"
-            files_in_last_day = session.execute(query, [(datetime.datetime.today() - timedelta(days=1)),
-                                                        datetime.datetime.today()]).one()
-
-            if total_size_last_day[0] > model["max_amount_of_data"]:
-                logging.error(
-                    f"{tenant} The limit per day ({model['max_amount_of_data']} MB) has been reached. Current size is {total_size_last_day[0]}")
-                return 1
-
-            if files_in_last_day[0] > model["max_number_of_files"]:
-                logging.error(
-                    f"{tenant} The limit of files per day ({model['max_number_of_files']}) has been reached. Current files is {files_in_last_day[0]}")
-                return 1
-
-            return 0
-
-        except Exception as e:
-            logging.error(f"{tenant} an error occurred during validation {e}")
+        else:
+            logging.error(f"{tenant} Does not exist in the configuration file.")
             return 1
 
-
 def create_schema(tenant):
-    session.set_keyspace(tenant)
     with open(args.config_models, "r") as jsonfile:
         data = json.load(jsonfile)
         try:
@@ -102,7 +108,6 @@ def create_schema(tenant):
 
 
 def insert_data(tenant, row):
-    create_schema(tenant)
     session.set_keyspace(tenant)
     with open(args.config_models, "r") as jsonfile:
         data = json.load(jsonfile)
@@ -136,7 +141,7 @@ def ingest_csv_file(tenant, file, file_size):
         next(csvreader)
         for row in csvreader:
             insert_data(tenant, row)
-    save_metrics(tenant, file_size)
+    save_metrics(tenant, start_time, file, file_size)
 
 
 def ingest_json_file(tenant, file, file_size):
@@ -146,15 +151,16 @@ def ingest_json_file(tenant, file, file_size):
         data = json.load(jsonfile)
         for json_item in data:
             insert_data(tenant, json_item)
-    save_metrics(tenant, file_size)
+    save_metrics(tenant, start_time, file, file_size)
 
 
-def save_metrics(tenant, file_size):
+def save_metrics(tenant, start_time, file, file_size):
     session.set_keyspace(tenant)
-    insert_query = "INSERT INTO batch_ingestion_metrics (ingestion_time, file_size) VALUES (%s, %s)"
+    insert_query = "INSERT INTO batch_ingestion_metrics (ingestion_time_start, ingestion_time_end, file_name, file_size) VALUES (%s, %s, %s, %s)"
     finished_time = datetime.datetime.now()
-    session.execute(insert_query, (finished_time, file_size))
-    logging.info(f"{tenant} Finished ingestion at {finished_time} a total of {file_size}")
+    file = os.path.basename(file)
+    session.execute(insert_query, (start_time, finished_time, file, file_size))
+    logging.info(f"{tenant} Finished ingesting {file} at {finished_time} a total of {file_size} MB where processed")
 
 
 class MyEventHandler(FileSystemEventHandler):

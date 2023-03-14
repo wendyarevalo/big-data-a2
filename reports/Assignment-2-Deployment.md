@@ -21,6 +21,8 @@ are installed and running, follow these steps:
     ```
 ## Part 1 - Batch Ingestion
 
+First create a virtual environment in python and install python requirements.
+
 ### Start batchingestmanager
 To start batch ingest manager run the following command:
 ```shell
@@ -28,15 +30,17 @@ python mysimbdp/batchingestmanager/batchingestmanager.py mysimbdp/client-staging
 ```
 The first argument is the staging folder, the second argument is the configuration model file. To stop the watcher use CTRL+C
 ### Send files to client-staging-input-directory
-I used a similar structure from the producers of assignment 1 for the move_to_provider.py files.
+I used a similar structure from the producers of assignment 1 for the move_to_provider.py files. 
+
+Use the files from _clientNumber/original-client-data_ or create more data sets from the original reddit comments dataset. Each example tenant
+has a set of test files (only uploaded the small ones).
 #### From client 1 (json):
-Use the files from original-client-data or create more data sets from the original reddit comments dataset.
+
 Run the following command using python:
 ```shell
 python client1/clientbatchingestapp/move_to_provider.py client1/original-client-data/filename.json
 ```
 #### From client 2 (csv):
-Use the files from original-client-data or create more data sets from the original reddit comments dataset.
 Run the following command using python:
 ```shell
 python client2/clientbatchingestapp/move_to_provider.py client2/original-client-data/filename.csv
