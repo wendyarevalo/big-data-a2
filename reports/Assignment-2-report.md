@@ -173,4 +173,42 @@ The messaging system used for the communication is Kafka. ** __DEFINE HOW WHEN R
      * This is simply done by stop ingesting messages for said tenant. The decision can be made according to the metrics of each tenant.
        If they paid for 5000 messages a day when they exceed that quota no more messages will be ingested to coredms until they add more messages to
        the quota, or wait for the next day.
-2. 
+2. The following model needs to be followed by all tenants. They have to tell me how many messages they will process every day. Also, they need to
+provide me with their table name and fields so the schema can be created accordingly in their namespace in coredms.
+
+    ```json
+       {
+       "tenant1": {
+         "max_messages_per_day": 1000,
+         "namespace": "tenant1",
+         "table_name": "comments_upvotes_by_subreddit",
+         "schema": {
+           "created_utc": "timestamp",
+           "ups": "int",
+           "subreddit": "text",
+           "id": "text",
+           "author": "text",
+           "score": "int",
+           "key": "((subreddit, id), ups)"
+         }
+       },
+        "tenant2": {
+            "max_messages_per_day": 100,
+            "namespace": "tenant2",
+            "table_name": "comments_by_subreddit",
+            "schema": {
+              "created_utc": "timestamp",
+              "subreddit": "text",
+              "id": "text",
+              "author": "text",
+              "body": "text",
+              "key": "((subreddit, id), author)"
+            }
+          }
+       }
+    ```
+    It is not relevant to me how they send their messages. If they exceed the quota the streamingestmanager will not
+    process them and will save that information to a log file, so they can later decide if they want more messages to be processed per day.
+    The message they send needs to follow the schema they have provided, and have to be sent to a topic that matches the namespace too. 
+    Any message that is not following the schema and/or is not sent to the correct topic won't be processed.
+3. 

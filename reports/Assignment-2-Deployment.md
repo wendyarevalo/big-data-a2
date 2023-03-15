@@ -68,3 +68,44 @@ calculates the average MB ingestion per second. To run that test simply use this
 python mysimbdp/performance-metrics/performance.py ../logs/performance.log tenantNumber
 ```
 To see the results go to [performance.log](../logs/performance.log).
+
+## Part 2
+For this part of the project I am following the [docker compose file](https://version.aalto.fi/gitlab/bigdataplatforms/cs-e4640/-/blob/master/tutorials/basickafka/docker-compose1.yml) provided in the tutorial, just added some modifications to work correctly in my environment.
+I am also using the [confluent examples](https://github.com/confluentinc/confluent-kafka-python#usage) for producers and consumers, adding modifications to process data accordingly.
+
+To start kafka environment use the following command:
+```shell
+docker-compose -f mysimbdp/messagingsystem/docker-compose.yml up -d
+```
+Create topics for both tenants:
+```shell
+docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic tenant1
+docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic tenant2
+```
+
+To start the __producers__: 
+
+The first argument is the file that contains data, the second argument is the topic.
+
+__For tenant1__ Use json files to process data. Sample files are in [original-client-data](../code/client1/original-client-data)
+```shell
+python client1/clientstreamingestapp/kafka_producer.py client1/original-client-data/1000rows2.json tenant1
+```
+__For tenant2__ Use csv files to process data. Sample files are in [original-client-data](../code/client2/original-client-data)
+```shell
+python client2/clientstreamingestapp/kafka_producer.py client2/original-client-data/1000rows.csv tenant2
+```
+
+To start the __consumers__:
+
+The first argument is the topic, the second argument is the consumer group
+
+To read __tenant1__ messages:
+```shell
+python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant1 mysimbdp
+```
+
+To read __tenant2__ messages:
+```shell
+python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant2 mysimbdp
+```

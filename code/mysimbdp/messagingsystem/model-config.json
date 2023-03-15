@@ -1,0 +1,29 @@
+{
+  "tenant1": {
+    "max_messages_per_day": 1000,
+    "namespace": "tenant1",
+    "table_name": "comments_upvotes_by_subreddit",
+    "schema": {
+      "created_utc": "timestamp",
+      "ups": "int",
+      "subreddit": "text",
+      "id": "text",
+      "author": "text",
+      "score": "int",
+      "key": "((subreddit, id), ups)"
+    }
+  },
+  "tenant2": {
+    "max_messages_per_day": 100,
+    "namespace": "tenant2",
+    "table_name": "comments_by_subreddit",
+    "schema": {
+      "created_utc": "timestamp",
+      "subreddit": "text",
+      "id": "text",
+      "author": "text",
+      "body": "text",
+      "key": "((subreddit, id), author)"
+    }
+  }
+}
