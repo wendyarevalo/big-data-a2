@@ -149,4 +149,28 @@ provider.
     
     This information can be useful to tenants too. They can monitor their daily data ingestion, so they can decide to pay for more capabilities. Also, to keep
     track of the files that were successfully ingested, and those that weren't, so they can send them again.
-    
+
+
+## Part 2 - Near-realtime data ingestion
+
+The design for the stream data ingestion is the following:
+
+![design stream](images/stream.png)
+
+Each tenant will generate its own messages, they will use its clientstreamingestapp to send messages to mysimbdp messaginsystem.
+The messaging sysmtem has two modules, streamingestmonitor and streamingestmanager. Tenants will send reports with metrics to the monitor
+and messages with data to ingest to the manager, which will store the messages in coredms.
+
+The messaging system used for the communication is Kafka. ** __DEFINE HOW WHEN READY__ **
+
+1. * Shared parts among tenants:
+     * coredms - It is a Cassandra cluster. 
+     * messagin system - Each tenant will send messages to the same messaging system.
+   * Dedicated for each tenant:
+     * topics in the messaging system - Each tenant will send messages with a topic, which will allow the manager to send the message to the correspondant namespace.
+     * namespace - Each tenant will have a separate namespace in coredms.
+   * Add/remove tenants:
+     * This is simply done by stop ingesting messages for said tenant. The decision can be made according to the metrics of each tenant.
+       If they paid for 5000 messages a day when they exceed that quota no more messages will be ingested to coredms until they add more messages to
+       the quota, or wait for the next day.
+2. 
