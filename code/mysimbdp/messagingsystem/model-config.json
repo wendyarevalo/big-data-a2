@@ -14,7 +14,7 @@
     }
   },
   "tenant2": {
-    "max_messages_per_day": 1000,
+    "max_messages_per_day": 2000,
     "namespace": "tenant2",
     "table_name": "comments_by_subreddit",
     "schema": {

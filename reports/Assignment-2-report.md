@@ -91,7 +91,7 @@ provider.
       2. client-staging-input-directory - A folder to which tenants will upload their data files.
 
    * Dedicated for each tenant:
-      1. batchingestmanager - According to the parameters in the configuration model, the manager will ingest data diferently to coredms.
+      1. batchingestmanager - According to the parameters in the configuration model, the manager will monitor the shared folder to find each tenant's files and ingest data differently to coredms.
       2. namespace - Each tenant will have a separate namespace in coredms.
 
    * There are two clientbatchingestapp to test. 
@@ -111,33 +111,65 @@ provider.
       that day is less than 1000 MB, and also the number of files inserted that day is less than 20 then the data gets processed as csv and gets inserted
       into coredms. If any of these constraints fail, the ingestion does not proceed.
  
-     * Here are screenshots of the logs in [ingestion.log](../logs/ingestion.log) when the constraints fail, they were modified to smaller constraints, so they fail faster.
+     * Here are screenshots of the logs in [ingestion.log](../logs/ingestion_batch.log) when the constraints fail, they were modified to smaller constraints, so they fail faster.
      ![constraint_validation_tenant](images/wrong_tenant.png)
      ![constraint_validation_format](images/wrong_format.png)
      ![constraint_validation_sizes](images/wrong_size_constraints.png)
 
     > __NOTE:__ It is important to mention that none of the clients are receiving any confirmation message of the ingestion. However, this might get solved with the metrics. They could have a dashboard to check the logs of their namespace in mysimbdp.
-   * To show the average performance I created a simple script that collects data from the batch_ingestion_table for each tenant and calculates the 
-   average MB per second.
-   ![batch_metrics](images/average.png)
-   I think tenant 2 is able to process more data than tenant1 because the strategy I am using for each file extension is different. While json is inserted
-   with a dedicated cql statement, csv rows are inserted the traditional way. These stadistics show that csv is faster. Also, CSV files can contain more information
-   than json files for the same amount of MB.
-   
-5. I am currently saving data related to ingestion (success and failures) in the [ingestion.log](../logs/ingestion.log) file. I am logging:
-   1. The beginning of the ingestion
-   2. The end of ingestion
-   3. The size of the file ingested
-   4. Errors in the validation of constraints
+   * To test performance I created two scripts, one based in messages per second and another one based in files/size/second. Here are some results after some ingestions:
+    ```
+   Number of messages processed: 3000 by tenant1
+   Minimum time taken to process a message: 0.000967 seconds by tenant1
+   Maximum time taken to process a message: 0.436384 seconds by tenant1
+   Average time taken to process a message: 0.0022287446666666667 seconds by tenant1
+   ```
+   ![Message processing time](images/batch-message-tenant1.png)
+    ```
+   Number of files processed: 3 by tenant1
+   Minimum time taken to process a file: 4.29036 seconds by tenant1
+   Maximum time taken to process a file: 4.500693 seconds by tenant1
+   Average time taken to process a file: 4.409771666666667 seconds by tenant1
+   Minimum file size: 0.1420755386352539 seconds by tenant1
+   Maximum file size: 0.14217662811279297 seconds by tenant1
+   Average file size: 0.1421213150024414 seconds by tenant1
+   ```
+   ![Relationship between size and time](images/batch-file-size-time-tenant1.png)
+   ```
+   Number of messages processed: 20000 by tenant2
+   Minimum time taken to process a message: 0.000895 seconds by tenant2
+   Maximum time taken to process a message: 0.457415 seconds by tenant2
+   Average time taken to process a message: 0.0022362127 seconds by tenant2
+   ```
+   ![Message processing time](images/batch-message-tenant2.png)
+   ```
+   Number of files processed: 2 by tenant2
+   Minimum time taken to process a file: 45.4919 seconds by tenant2
+   Maximum time taken to process a file: 45.573657 seconds by tenant2
+   Average time taken to process a file: 45.5327785 seconds by tenant2
+   Minimum file size: 1.8295812606811523 seconds by tenant2
+   Maximum file size: 1.8295812606811523 seconds by tenant2
+   Average file size: 1.8295812606811523 seconds by tenant2
+   ```
+   ![Relationship between size and time](images/batch-file-size-time-tenant2.png)
+    
+    I can see that the messages that have body take slightly more time than those who does not contain that part. Also, ingestion in csv is done the traditional
+    why, while json ingestion is done by using the complete structure.
+
+5. I am currently saving data related to ingestion (success and failures) in the [ingestion_batch.log](../logs/ingestion_batch.log) file. I am logging:
+   1. The size of the ingested file
+   2. The time taken to ingest one record
+   3. The time taken to ingest the complete file
+   4. Errors in the validation of constraints (as shown in question 4)
    5. Errors during ingestion to Cassandra
    
    A successful ingestion looks like this:
-   ![success](images/success.png)
+   ![success](images/success_batch.png)
    
     A failed ingestion for validation was shown previously.
 
     I am also saving data in each tenant's name space, in the table batch_ingestion_metrics. I use that information to check if
-    any tenant have exceeded the daily amount of data they paid for, and to get metrics on performance.
+    any tenant has exceeded the daily amount of data they paid for.
     1. The beginning of the ingestion
     2. The end of ingestion
     3. The name of the file ingested
@@ -147,7 +179,7 @@ provider.
     
     ![batch_metrics_table](images/batch_metrics_table.png)
     
-    This information can be useful to tenants too. They can monitor their daily data ingestion, so they can decide to pay for more capabilities. Also, to keep
+    This information could be useful to tenants too if a report is given. They can monitor their daily data ingestion, so they can decide to pay for more capabilities. Also, to keep
     track of the files that were successfully ingested, and those that weren't, so they can send them again.
 
 
@@ -165,14 +197,15 @@ The messaging system used for the communication is Kafka. ** __DEFINE HOW WHEN R
 
 1. * Shared parts among tenants:
      * coredms - It is a Cassandra cluster. 
-     * messagin system - Each tenant will send messages to the same messaging system.
+     * messaging system - Each tenant will send messages to the same messaging system.
    * Dedicated for each tenant:
      * topics in the messaging system - Each tenant will send messages with a topic, which will allow the manager to send the message to the correspondant namespace.
+     * consumer of the messages - Each tenant will have a dedicated consumer which will ingest their data to coredms.
      * namespace - Each tenant will have a separate namespace in coredms.
    * Add/remove tenants:
      * This is simply done by stop ingesting messages for said tenant. The decision can be made according to the metrics of each tenant.
        If they paid for 5000 messages a day when they exceed that quota no more messages will be ingested to coredms until they add more messages to
-       the quota, or wait for the next day.
+       the quota, or wait for the next day. If a tenant does not want the service anymore it will be removed from the configuration models and its consumer will be shut down.
 2. The following model needs to be followed by all tenants. They have to tell me how many messages they will process every day. Also, they need to
 provide me with their table name and fields so the schema can be created accordingly in their namespace in coredms.
 
@@ -207,8 +240,28 @@ provide me with their table name and fields so the schema can be created accordi
           }
        }
     ```
-    It is not relevant to me how they send their messages. If they exceed the quota the streamingestmanager will not
+    As __provider__, it is not relevant to me how they send their messages. If they exceed the quota the streamingestmanager will not
     process them and will save that information to a log file, so they can later decide if they want more messages to be processed per day.
     The message they send needs to follow the schema they have provided, and have to be sent to a topic that matches the namespace too. 
     Any message that is not following the schema and/or is not sent to the correct topic won't be processed.
-3. 
+
+    As __tenant1__, I am sending my data which is stored in json files as json messages. I clean the data and select only the fields I
+    require. I provided my schema to the provider.
+
+    As __tenant2__, I am sending my data which is stored in csv files as json messages. I transform csv rows to json objects with only
+    the fields that are relevant for me. Some contents of the reddit comments might include special characters like parentheses or
+    brackets, I acknowledge that those messages will be lost during ingestion.
+3. The time it takes a message to get ingested to coredms is logged into [ingestion_stream.log](../logs/ingestion_batch.log). All errors are also
+    written. For example, if a tenant exceeds their quota, then errors like this will be shown in the log:
+
+    ![exceeded quota](images/exceeded_quota.png)
+    If an error occurs during ingestion it will also be shown.
+    ![incorrect message](images/incorrect_message.png)
+    On the other hand, correct ingestion looks like this:
+    ![correct ingestion](images/stream_correct.png)
+
+    For testing tenant1 I am using json files that get transformed into json messages and sent to the consumer.
+    
+    For testing tenant2 I am using csv files that get transformed into json messages and sent to the consumer.
+
+    

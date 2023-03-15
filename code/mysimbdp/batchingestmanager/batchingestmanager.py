@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("staging_folder", help="Path to staging folder in mysimbdp")
 parser.add_argument("config_models", help="Path to configuration models file")
 parser.add_argument("log_file", help="Path to log file")
+parser.add_argument("tenant", help="Tenant owner of the monitor")
 args = parser.parse_args()
 
 if not os.path.isdir(args.staging_folder):
@@ -42,6 +43,8 @@ def validate(tenant, file_extension, file_size):
     with open(args.config_models, "r") as jsonfile:
         data = json.load(jsonfile)
         if tenant in data:
+            if tenant != args.tenant:
+                return 0
             try:
                 model = data[tenant]
                 session.execute("CREATE KEYSPACE IF NOT EXISTS " + model["namespace"] + " WITH REPLICATION = "
@@ -88,7 +91,7 @@ def validate(tenant, file_extension, file_size):
                 logging.error(f"{tenant} an error occurred during validation {e}")
                 return 1
         else:
-            logging.error(f"{tenant} Does not exist in the configuration file.")
+            logging.error(f"{tenant} Does not match the configuration file.")
             return 1
 
 def create_schema(tenant):
@@ -117,7 +120,11 @@ def insert_data(tenant, row):
                 row["created_utc"] = datetime.datetime.utcfromtimestamp(row["created_utc"]).strftime(
                     "%Y-%m-%d %H:%M:%S")
                 query = "INSERT INTO " + model["table_name"] + " JSON" + "'" + json.dumps(row) + "'"
+                start_time = datetime.datetime.now()
                 session.execute(query)
+                finished_time = datetime.datetime.now()
+                seconds = (finished_time - start_time).total_seconds()
+                logging.info(f"{tenant} Finished ingesting one message in {seconds} seconds")
             else:
                 query = "INSERT INTO " + model["table_name"] + " ("
                 for field in model["schema"]:
@@ -128,40 +135,46 @@ def insert_data(tenant, row):
                     query += "%s,"
                 query = query[:-1] + ")"
                 row[0] = datetime.datetime.utcfromtimestamp(int(row[0])).strftime("%Y-%m-%d %H:%M:%S")
+                start_time = datetime.datetime.now()
                 session.execute(query, row)
+                finished_time = datetime.datetime.now()
+                seconds = (finished_time - start_time).total_seconds()
+                logging.info(f"{tenant} Finished ingesting one message in {seconds} seconds")
         except Exception as e:
             logging.error(f"{tenant} an error occurred during ingestion {e}")
 
 
 def ingest_csv_file(tenant, file, file_size):
     start_time = datetime.datetime.now()
-    logging.info(f"{tenant} Started ingestion of csv file at {start_time}")
     with open(file, 'r') as csvfile:
         csvreader = csv.reader(csvfile)
         next(csvreader)
         for row in csvreader:
             insert_data(tenant, row)
-    save_metrics(tenant, start_time, file, file_size)
+
+    finished_time = datetime.datetime.now()
+    seconds = (finished_time - start_time).total_seconds()
+    logging.info(f"{tenant} Finished ingesting one file of {file_size} MB in {seconds} seconds")
+    save_metrics(tenant, start_time, finished_time, file, file_size)
 
 
 def ingest_json_file(tenant, file, file_size):
     start_time = datetime.datetime.now()
-    logging.info(f"{tenant} Started ingestion of json file at {start_time}")
     with open(file, "r") as jsonfile:
         data = json.load(jsonfile)
         for json_item in data:
             insert_data(tenant, json_item)
-    save_metrics(tenant, start_time, file, file_size)
+    finished_time = datetime.datetime.now()
+    seconds = (finished_time - start_time).total_seconds()
+    logging.info(f"{tenant} Finished ingesting one file of {file_size} MB in {seconds} seconds")
+    save_metrics(tenant, start_time, finished_time, file, file_size)
 
 
-def save_metrics(tenant, start_time, file, file_size):
+def save_metrics(tenant, start_time, finished_time, file, file_size):
     session.set_keyspace(tenant)
     insert_query = "INSERT INTO batch_ingestion_metrics (ingestion_time_start, ingestion_time_end, file_name, file_size) VALUES (%s, %s, %s, %s)"
-    finished_time = datetime.datetime.now()
     file = os.path.basename(file)
     session.execute(insert_query, (start_time, finished_time, file, file_size))
-    logging.info(f"{tenant} Finished ingesting {file} at {finished_time} a total of {file_size} MB where processed")
-
 
 class MyEventHandler(FileSystemEventHandler):
     def on_created(self, event):

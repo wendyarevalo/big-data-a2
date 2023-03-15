@@ -30,11 +30,11 @@ pip install -r requirements.txt
 ```
 
 ### Start batchingestmanager
-To start batch ingest manager run the following command:
+To start batch ingest manager for each tenant run the following command:
 ```shell
-python mysimbdp/batchingestmanager/batchingestmanager.py mysimbdp/client-staging-input-directory mysimbdp/batchingestmanager/config_model.json
+python mysimbdp/batchingestmanager/batchingestmanager.py mysimbdp/client-staging-input-directory mysimbdp/batchingestmanager/config_model.json ../logs/ingestion_batch.log tenantNumber
 ```
-The first argument is the staging folder, the second argument is the configuration model file. To stop the watcher use CTRL+C
+The first argument is the staging folder, the second argument is the configuration model file, then the log file to save logs, and finally the tenant number. To stop the watcher use CTRL+C
 ### Send files to client-staging-input-directory
 I used a similar structure from the producers of assignment 1 for the move_to_provider.py files. 
 
@@ -62,16 +62,23 @@ If you want to try the constraints easily then just create/move new files direct
 To validate that data was inserted, directly query the database from any node. Don't forget to use the correspondant namespace.
 
 #### Test performance
-The performance test is a simple python file that gets data from the table of batch_ingestion_metrics of the specified tenant and 
-calculates the average MB ingestion per second. To run that test simply use this command:
+Two performance tests are available to test batch ingestion, they can measure performance per individual tenant or by all, use the second
+argument accordingly (_tenant1, tenant2_ or _all_):
+1. Performance by message: give statistics on ingestion times per message. To try it run the following command:
 ```shell
-python mysimbdp/performance-metrics/performance.py ../logs/performance.log tenantNumber
+python mysimbdp/performance-metrics/performance_by_message.py ../logs/ingestion_batch.log tenantNumber
 ```
-To see the results go to [performance.log](../logs/performance.log).
+2. Performance by file: give statistics on ingestion times per file. To try it run the following command:
+```shell
+python mysimbdp/performance-metrics/performance_by_file.py ../logs/ingestion_batch.log tenantNumber
+```
+Both tests show a graphic at the end.
 
 ## Part 2
 For this part of the project I am following the [docker compose file](https://version.aalto.fi/gitlab/bigdataplatforms/cs-e4640/-/blob/master/tutorials/basickafka/docker-compose1.yml) provided in the tutorial, just added some modifications to work correctly in my environment.
 I am also using the [confluent examples](https://github.com/confluentinc/confluent-kafka-python#usage) for producers and consumers, adding modifications to process data accordingly.
+
+### Kafka environment
 
 To start kafka environment use the following command:
 ```shell
@@ -79,33 +86,46 @@ docker-compose -f mysimbdp/messagingsystem/docker-compose.yml up -d
 ```
 Create topics for both tenants:
 ```shell
-docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic tenant1
-docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic tenant2
+docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic tenant1
+docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic tenant2
 ```
 
-To start the __producers__: 
+#### To start the __producers__: 
 
 The first argument is the file that contains data, the second argument is the topic.
 
-__For tenant1__ Use json files to process data. Sample files are in [original-client-data](../code/client1/original-client-data)
+___For tenant1___
+
+Use json files to process data. Sample files are in [original-client-data](../code/client1/original-client-data)
 ```shell
 python client1/clientstreamingestapp/kafka_producer.py client1/original-client-data/1000rows2.json tenant1
 ```
-__For tenant2__ Use csv files to process data. Sample files are in [original-client-data](../code/client2/original-client-data)
+___For tenant2___ 
+
+Use csv files to process data. Sample files are in [original-client-data](../code/client2/original-client-data)
 ```shell
 python client2/clientstreamingestapp/kafka_producer.py client2/original-client-data/1000rows.csv tenant2
 ```
 
-To start the __consumers__:
+#### To start the __consumers__:
 
 The first argument is the topic, the second argument is the consumer group, third is the configuration models and lastly the log file.
 
-To read __tenant1__ messages:
+___To read tenant1 messages:___
 ```shell
 python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant1 mysimbdp mysimbdp/messagingsystem/model-config.json ../logs/ingestion_stream.log
 ```
 
-To read __tenant2__ messages:
+___To read tenant2 messages:___
 ```shell
 python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant2 mysimbdp mysimbdp/messagingsystem/model-config.json ../logs/ingestion_stream.log
 ```
+
+### Test performance
+One performance test is available to test stream ingestion, it can measure performance per individual tenant or by all, use the second
+argument accordingly (_tenant1, tenant2_ or _all_):
+1. Performance by message: give statistics on ingestion times per message. To try it run the following command:
+```shell
+python mysimbdp/performance-metrics/performance_by_message.py ../logs/ingestion_stream.log tenantNumber
+```
+The test shows a histogram at the end.
