@@ -298,3 +298,86 @@ provide me with their table name and fields so the schema can be created accordi
     
     A more reasonable metric could be an average throughput of 17438 messages per second if we use
     the average time taken for a message to be processed.
+4. TBD
+5. TBD
+
+## Part 3 - Integration and Extension
+
+1. To support this feature I would simply change the log file in the arguments of both batch and stream systems, so they
+    store data in the same place. Then I would simply run the tests I already have with the name of the desired tenant
+    and would get the result from both batch and stream by message and by file. I could also get cumulative data for all my tenants.
+2. One solution could be to use a different topic specifying the sink, then I would adjust my consumer to send data from that
+    topic to the correspondant sink.
+    The tenant then would need to run the producer twice for each topic (that specifies the sink).
+    
+    Another option could be to receive an extra parameter in the message so that I could check if that particular message
+    needs to go to one or many sinks. With this approach the tenant doesn't need to send the message twice.
+
+    For example, a json message could be modified as follows:
+    ```json
+   {
+   "sink" : ["coredms", "alternate_sink"],
+   "message": {
+      "created_utc": "2015-05-01 05:44:32",
+      "ups": 13, 
+      "subreddit": "bleach", 
+      "id": "cqurdgl", 
+      "author": "ciddark", 
+      "score": 13
+      }
+   }
+   ```
+3. One simple option for tenants that send json messages could be to use [bson](https://bsonspec.org/#/specification) instead, 
+which transforms the data to binary, then the receiver can store it like that or transform it back. However, this is not encryption.
+But if they only want a low level of security this could work.
+
+    If they need more security then I would recommend to use a secured connection to interact with kafka, right now it is configured to accept "plain text" 
+instead of SSL. 
+
+    For files, it would be also possible to have shared certificates to encrypt and decrypt, so only the tenant and provider can visualize the
+    contents.
+4. TBD
+5. To extend my design to support different file types I would modify the constraints in the configuration model,
+so instead of allowing only one file type they could use more. I would also need to implement support in my batchingestmanager for
+other file types such as txt.
+
+    It would be something like this:
+    ```json
+   {
+   "tenant1": {
+     "max_file_size": 10,
+     "file_type": [".json",".txt",".csv"],
+     "max_amount_of_data": 500,
+     "max_number_of_files": 50,
+     "namespace": "tenant1",
+     "table_name": "comments_upvotes_by_subreddit",
+     "schema": {
+       "created_utc": "timestamp",
+       "ups": "int",
+       "subreddit": "text",
+       "id": "text",
+       "author": "text",
+       "score": "int",
+       "key": "((subreddit, id), ups)"
+     }
+   },
+    "tenant2": {
+        "max_file_size": 50,
+        "file_type": [".csv", ".json"],
+        "max_amount_of_data": 1000,
+        "max_number_of_files": 20,
+        "namespace": "tenant2",
+        "table_name": "comments_by_subreddit",
+        "schema": {
+          "created_utc": "timestamp",
+          "subreddit": "text",
+          "id": "text",
+          "author": "text",
+          "body": "text",
+          "key": "((subreddit, id), author)"
+        }
+      }
+   }
+   ```
+   Additionally, for different workloads I could add some kind of job mechanism, so those files that require more time to process
+could be processed later when there is not much activity. They could also be processed in parts, so they don't take all the resources at once.
