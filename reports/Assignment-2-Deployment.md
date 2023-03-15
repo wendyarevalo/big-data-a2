@@ -98,14 +98,14 @@ python client2/clientstreamingestapp/kafka_producer.py client2/original-client-d
 
 To start the __consumers__:
 
-The first argument is the topic, the second argument is the consumer group
+The first argument is the topic, the second argument is the consumer group, third is the configuration models and lastly the log file.
 
 To read __tenant1__ messages:
 ```shell
-python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant1 mysimbdp
+python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant1 mysimbdp mysimbdp/messagingsystem/model-config.json ../logs/ingestion_stream.log
 ```
 
 To read __tenant2__ messages:
 ```shell
-python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant2 mysimbdp
+python mysimbdp/messagingsystem/streamingestmanager/kafka_consumer.py tenant2 mysimbdp mysimbdp/messagingsystem/model-config.json ../logs/ingestion_stream.log
 ```

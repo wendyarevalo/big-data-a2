@@ -1,6 +1,6 @@
 {
   "tenant1": {
-    "max_messages_per_day": 1000,
+    "max_messages_per_day": 2000,
     "namespace": "tenant1",
     "table_name": "comments_upvotes_by_subreddit",
     "schema": {
@@ -14,7 +14,7 @@
     }
   },
   "tenant2": {
-    "max_messages_per_day": 100,
+    "max_messages_per_day": 1000,
     "namespace": "tenant2",
     "table_name": "comments_by_subreddit",
     "schema": {
