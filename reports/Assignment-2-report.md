@@ -193,19 +193,22 @@ Each tenant will generate its own messages, they will use its clientstreamingest
 The messaging sysmtem has two modules, streamingestmonitor and streamingestmanager. Tenants will send reports with metrics to the monitor
 and messages with data to ingest to the manager, which will store the messages in coredms.
 
-The messaging system used for the communication is Kafka. ** __DEFINE HOW WHEN READY__ **
+The messaging system used for the communication is Kafka. Each tenant uses a producer to send messages to mysimbdp. I could have also
+used an API to send individual messages, however I focused on this implementation. 
+There is a dedicated consumer (or more if needed, just increment the partitions) to process incoming messages from tenants and ingest them to coredms.
+Both consumers and producers will use the same topic according to the tenant that is sending the data.
 
 1. * Shared parts among tenants:
      * coredms - It is a Cassandra cluster. 
      * messaging system - Each tenant will send messages to the same messaging system.
    * Dedicated for each tenant:
      * topics in the messaging system - Each tenant will send messages with a topic, which will allow the manager to send the message to the correspondant namespace.
-     * consumer of the messages - Each tenant will have a dedicated consumer which will ingest their data to coredms.
+     * consumer of the messages - Each tenant will have a dedicated consumer (or more) which will ingest their data to coredms.
      * namespace - Each tenant will have a separate namespace in coredms.
    * Add/remove tenants:
      * This is simply done by stop ingesting messages for said tenant. The decision can be made according to the metrics of each tenant.
        If they paid for 5000 messages a day when they exceed that quota no more messages will be ingested to coredms until they add more messages to
-       the quota, or wait for the next day. If a tenant does not want the service anymore it will be removed from the configuration models and its consumer will be shut down.
+       the quota, or wait for the next day. If a tenant does not want the service anymore it will be removed from the configuration models and its consumers will be shut down.
 2. The following model needs to be followed by all tenants. They have to tell me how many messages they will process every day. Also, they need to
 provide me with their table name and fields so the schema can be created accordingly in their namespace in coredms.
 
@@ -264,4 +267,34 @@ provide me with their table name and fields so the schema can be created accordi
     
     For testing tenant2 I am using csv files that get transformed into json messages and sent to the consumer.
 
+    The results of the performance tests for each tenant are the following:
+    ```
+   Number of messages processed: 2000 by tenant1
+   Minimum time taken to process a message: 0.001111 seconds by tenant1
+   Maximum time taken to process a message: 0.0465 seconds by tenant1
+   Average time taken to process a message: 0.0033423105 seconds by tenant1
+   ```
+   ![Message processing time](images/stream-message-tenant1.png)
+    ```
+   Number of messages processed: 1125 by tenant2
+   Minimum time taken to process a message: 0.001224 seconds by tenant2
+   Maximum time taken to process a message: 0.032488 seconds by tenant2
+   Average time taken to process a message: 0.003615905777777778 seconds by tenant2
+   ```
+   ![Message processing time](images/stream-message-tenant2.png)
+
+    And for all:
+    ```
+   Number of messages processed: 3125 by all
+   Minimum time taken to process a message: 0.001111 seconds by all
+   Maximum time taken to process a message: 0.0465 seconds by all
+   Average time taken to process a message: 0.0034408048 seconds by all
+   ```
+   ![Message processing time](images/stream-message-all.png)
+
+    The maximum throughput possible is 54005 messages per second, if we take the minimum time
+    it took to process one single message, however, this condition will only be met if all messages
+    share the characteristic of that one that gave that statistic.
     
+    A more reasonable metric could be an average throughput of 17438 messages per second if we use
+    the average time taken for a message to be processed.

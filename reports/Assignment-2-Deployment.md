@@ -92,13 +92,13 @@ docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --cre
 
 #### To start the __producers__: 
 
-The first argument is the file that contains data, the second argument is the topic.
+The first argument is the file that contains data, the second argument is the topic. 
 
 ___For tenant1___
 
 Use json files to process data. Sample files are in [original-client-data](../code/client1/original-client-data)
 ```shell
-python client1/clientstreamingestapp/kafka_producer.py client1/original-client-data/1000rows2.json tenant1
+python client1/clientstreamingestapp/kafka_producer.py client1/original-client-data/1000rows.json tenant1
 ```
 ___For tenant2___ 
 
@@ -109,6 +109,7 @@ python client2/clientstreamingestapp/kafka_producer.py client2/original-client-d
 
 #### To start the __consumers__:
 
+There can be more than one consumer, just increase the number of partitions in the kafka command for the creation of the topic.
 The first argument is the topic, the second argument is the consumer group, third is the configuration models and lastly the log file.
 
 ___To read tenant1 messages:___
