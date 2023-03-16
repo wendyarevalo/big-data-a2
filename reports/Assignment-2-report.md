@@ -311,7 +311,22 @@ provide me with their table name and fields so the schema can be created accordi
    Where the time is measured in seconds. That information will be gathered from the logs of the clientstreamingestapp. 
     This could definitely be automated, however for now the report will be sent manually every day (I added an argument for
     the date, so it can be tested with different values).
-5. TBD
+5. Streamingestmonitor receives a message from the tenant with the report mentioned above. After that, it checks the local records
+    from the ingestion log and compares them with received values.
+    1. If the messages sent from the client are more than the messages ingested to coredms, it sends an error to the streamingestmanager.
+   2. If the throughput of delivery is higher than the throughput of ingestion, it sends an error to the streamingestmanager.
+   3. If there are no logs of ingested messages and the received data is higher, it sends an error to the streamingestmanager.
+   4. If there are no logs of ingestion and there are no messages from the report, it sends and info message saying there weren't any ingestions.
+   5. Finally, if none of those criteria are matched, then it sends and info message saying everything is normal.
+   
+    Some examples can be seen here:
+    ![Error in the report](images/send_error_report.png)
+   ![Success report](images/send_successful_report.png)
+    The streamingestmanager consumer is also subscribed for messages in the topic stream-monitor, when it receives the  information
+    it simply logs it to the [ingestion_stream.log](../logs/ingestion_stream.log).
+    
+    Currently, streamingestmanager is not taking any actions with those reports other than logging that, but it could be a 
+    great idea to send an automated email to tenants with the results, so they can make decisions with the information.
 
 ## Part 3 - Integration and Extension
 
