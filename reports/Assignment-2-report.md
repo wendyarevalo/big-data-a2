@@ -1,12 +1,3 @@
-# This your assignment report
-
-It is a free form. you can add:
-
-* your designs
-* your answers to questions in the assignment
-* your test results
-* etc.
-
 ## Part 1 - Batch data ingestion pipeline
 
 The design for the batch data ingestion is the following:
