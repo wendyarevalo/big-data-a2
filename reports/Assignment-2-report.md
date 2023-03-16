@@ -336,7 +336,15 @@ instead of SSL.
 
     For files, it would be also possible to have shared certificates to encrypt and decrypt, so only the tenant and provider can visualize the
     contents.
-4. TBD
+4. i. To measure quality of reddit comments I would ask my tenants on what is the characteristic they want to measure. So I can add it to the 
+    model. For example, maybe tenant 1 would like to check only comments that have up votes above a certain number, let's say 50 upvotes. All 
+    the comments that have less than that could be then discarded. For tenant 2, there is something already happening, all those messages that
+    include parenthesis and square brackets are not getting ingested because they mess up the system, so that data is not valuable for them. Even though
+    there is not a real filter it is already being excluded.
+
+    ii. To store metadata I could  automate a script that runs daily and checks the logs to see the authors with most voted comments and store it in a metadata
+    table for tenant 1. For tenant 2 I would store those authors that have more wrongly formatted messages. I could simply do a similar strategy
+    of the one I'm using to get statistics, but look for different patterns in the logs.
 5. To extend my design to support different file types I would modify the constraints in the configuration model,
 so instead of allowing only one file type they could use more. I would also need to implement support in my batchingestmanager for
 other file types such as txt.
