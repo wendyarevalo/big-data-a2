@@ -298,7 +298,18 @@ provide me with their table name and fields so the schema can be created accordi
     
     A more reasonable metric could be an average throughput of 17438 messages per second if we use
     the average time taken for a message to be processed.
-4. TBD
+4. Tenants will send statistics on the data they send to the messaging system every day, as it matches the schema 
+    of pricing. For doing that they will send a message over a dedicated topic for statistics to streamingestmonitor (the analysis of
+    the report is explained in next question). The message will have the following structure:
+    ```json
+   {
+    "date": "2023-03-16",
+   "avg_ingestion_time": 0.002,
+   "total_messages": 15000
+   }
+   ```
+   Where the time is measured in seconds. That information will be gathered from the logs of the clientstreamingestapp. 
+    This could definitely be automated, however for now the report will be done manually.
 5. TBD
 
 ## Part 3 - Integration and Extension

@@ -87,24 +87,35 @@ docker-compose -f mysimbdp/messagingsystem/docker-compose.yml up -d
 Create topics for both tenants:
 ```shell
 docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic tenant1
+```
+```shell
 docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic tenant2
+```
+
+And the topic for reports:
+
+```shell
+docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic tenant1-stats
+```
+```shell
+docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic tenant2-stats
 ```
 
 #### To start the __producers__: 
 
-The first argument is the file that contains data, the second argument is the topic. 
+The first argument is the file that contains data, the second argument is the topic, the last parameter is the log file.
 
 ___For tenant1___
 
-Use json files to process data. Sample files are in [original-client-data](../code/client1/original-client-data)
+Use json files to process data. Sample files are in [original-client-data](../code/client1/original-client-data).
 ```shell
-python client1/clientstreamingestapp/kafka_producer.py client1/original-client-data/1000rows.json tenant1
+python client1/clientstreamingestapp/kafka_producer.py client1/original-client-data/1000rows.json tenant1 client1/clientstreamingestapp/stats.log
 ```
 ___For tenant2___ 
 
 Use csv files to process data. Sample files are in [original-client-data](../code/client2/original-client-data)
 ```shell
-python client2/clientstreamingestapp/kafka_producer.py client2/original-client-data/1000rows.csv tenant2
+python client2/clientstreamingestapp/kafka_producer.py client2/original-client-data/1000rows.csv tenant2 client2/clientstreamingestapp/stats.log
 ```
 
 #### To start the __consumers__:
@@ -130,3 +141,23 @@ argument accordingly (_tenant1, tenant2_ or _all_):
 python mysimbdp/performance-metrics/performance_by_message.py ../logs/ingestion_stream.log tenantNumber
 ```
 The test shows a histogram at the end.
+
+### Send reports from client
+Each client has its own stats.log which contains information on how much time
+a message took to get delivered.
+To send the report to stream monitor run the following commands:
+
+___tenant1:___
+```shell
+python client1/clientstreamingestapp/send-report.py client1/clientstreamingestapp/stats.log 2023-03-16 tenant1-stats
+```
+
+___tenant2:___
+```shell
+python client2/clientstreamingestapp/send-report.py client2/clientstreamingestapp/stats.log 2023-03-16 tenant2-stats
+```
+
+The first argument is the location of the log to analyze, then the date and the topic to
+send the report. Change the date to the one desired one to generate the report.
+
+### Receive reports from client
