@@ -1,2 +1,167 @@
-the content of this file should be the output of the log of your own git project for this assignment
-using git log command to export your git log
+commit 06c0735923829ad60304930170aa092be12fd8b4 (HEAD -> main, origin/main)
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Thu Mar 16 22:25:16 2023 +0200
+
+    update README
+
+commit 988fc8cfe60339e8e01b0021643dabe640a896bd
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Thu Mar 16 21:56:47 2023 +0200
+
+    update self grading
+
+commit 961e00c07c5fb17a857a0a7ccfb53ed1200395a5
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Thu Mar 16 21:55:52 2023 +0200
+
+    Answer 2.5
+
+commit 5688a90375d7952f78ee0cd6b92288d5f815bf95
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Thu Mar 16 21:41:09 2023 +0200
+
+    streammonitor sends report to streammanager
+
+commit f77bc8232585c519e14b90659b0d6918423df2b6
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Thu Mar 16 19:36:40 2023 +0200
+
+    Implement send report
+
+commit 15c9a80d09d666fc4cca999eaa83e82c231e2f44
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Thu Mar 16 17:12:00 2023 +0200
+
+    Answer 3.4
+
+commit 0f7ac624f81ce4084f73f8676291e17bebc1cd55
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Wed Mar 15 23:14:56 2023 +0200
+
+    Update self grading
+
+commit 2288443f174bfe3670057196b10d18d08d3f33a3
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Wed Mar 15 23:11:36 2023 +0200
+
+    Answer questions 3.1, 3.2, 3.3, and 3.5
+
+commit 7ef9aeb0e936c2a8f51db811861b7b223b5b9920
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Wed Mar 15 22:24:22 2023 +0200
+
+    Answer question 2.3 completely
+
+commit a9a8b3d0b921b87b1f5ee4aac8038320574cb587
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Wed Mar 15 21:50:56 2023 +0200
+
+    Changes in performance tests
+
+commit cd07beb84c4a9c5397681bc238ca3b13a8ea820d
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Wed Mar 15 16:33:04 2023 +0200
+
+    Consumer ingests data to coredms
+
+commit e50e9af321f61e78e8752c3ad14b07146c232e3c
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Wed Mar 15 15:04:00 2023 +0200
+
+    Simple kafka producers and consumers, question 2.2
+
+commit afca41e5cfcbec8a906e405557d45d0319236299
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Wed Mar 15 09:59:01 2023 +0200
+
+    Draft on design and question 2.1
+
+commit ab46b14d0aeec98fb5b48d5cd51c09e12f2fe837
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 18:24:59 2023 +0200
+
+    Update self grading
+
+commit b28bb9049069d631d16b1385d24de7475cc83a67
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 18:22:43 2023 +0200
+
+    Performance test for batch added
+
+commit b50947e72b95fa68ea74d0da4715ae490d685bb8
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 17:20:44 2023 +0200
+
+    Test ingestion results
+
+commit 1735b1cba8440466e8a3d35909553fb606d2e580
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 14:14:23 2023 +0200
+
+    Logging added to batch ingestion
+
+commit 18bf26da8cefbce1ef4c35c11ae332c84afa3fac
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 12:33:48 2023 +0200
+
+    Deployment for question 1.4
+
+commit f66dd40f6ae5b70d01760fa18c67642b96bb33f6
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 11:37:26 2023 +0200
+
+    small typo
+
+commit aacc1e7bc6afc4bfb17d71d1adf7a4911d2ce1ed
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 11:33:42 2023 +0200
+
+    Ingest json and csv files to Cassandra
+
+commit 570b9b6900281cdc2228b8884a6eaaafa946c11a
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Tue Mar 14 00:10:40 2023 +0200
+
+    Constraint validation in batchingestmanager
+
+commit 34fcffc9543f02e1500f10a7f57d3e945bda2d54
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Mon Mar 13 19:56:34 2023 +0200
+
+    Testing watchdog
+
+commit 6681b75bbd419840b0f11de9214c5d2cabf4399e
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Mon Mar 13 18:31:30 2023 +0200
+
+    Add move to provider functionality and sample data
+
+commit a27fb69a2cc0026cc64ccedd72d1e944b1d55017
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Mon Mar 13 17:23:10 2023 +0200
+
+    Question 1.3 and part of 1.4
+
+commit 5a9de3dc96077461442c6a3b4075a3042d5ef059
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Mon Mar 13 16:08:33 2023 +0200
+
+    Question 1.2
+
+commit 7551be072bc05fe7ebdd8918427715d1bce53fe4
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Mon Mar 13 11:53:09 2023 +0200
+
+    Question 1.1
+
+commit 7377775ad74e484947282db7cd12cf5144dffe53
+Author: Wendy Arevalo <wendyyunuen@hotmail.com>
+Date:   Fri Mar 10 11:03:19 2023 +0200
+
+    Initial project structure
+
+commit 257b166e3278a1c636870a5c65843b68a7050024
+Author: Wendy Arevalo <33068924+wendyarevalo@users.noreply.github.com>
+Date:   Fri Mar 10 10:54:27 2023 +0200
+
+    Initial commit
