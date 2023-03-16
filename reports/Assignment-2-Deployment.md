@@ -16,7 +16,7 @@ with the needed modifications to work in my environment. Assuming docker and doc
 are installed and running, follow these steps:
 
 1. Start the containers:
-    ```
+    ```shell
    docker-compose -f mysisbdp/coredms/docker-compose.yml up -d
     ```
 ## Part 1 - Batch Ingestion
@@ -100,6 +100,9 @@ docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --cre
 ```shell
 docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic tenant2-stats
 ```
+```shell
+docker exec messagingsystem-kafka-1 /opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 2 --topic stream-monitor
+```
 
 #### To start the __producers__: 
 
@@ -149,15 +152,27 @@ To send the report to stream monitor run the following commands:
 
 ___tenant1:___
 ```shell
-python client1/clientstreamingestapp/send-report.py client1/clientstreamingestapp/stats.log 2023-03-16 tenant1-stats
+python client1/clientstreamingestapp/send_report.py client1/clientstreamingestapp/stats.log 2023-03-16 tenant1-stats
 ```
 
 ___tenant2:___
 ```shell
-python client2/clientstreamingestapp/send-report.py client2/clientstreamingestapp/stats.log 2023-03-16 tenant2-stats
+python client2/clientstreamingestapp/send_report.py client2/clientstreamingestapp/stats.log 2023-03-16 tenant2-stats
 ```
 
 The first argument is the location of the log to analyze, then the date and the topic to
 send the report. Change the date to the one desired one to generate the report.
 
 ### Receive reports from client
+___from tenant1___
+```shell
+python mysimbdp/messagingsystem/streamingestmonitor/receive_report.py tenant1-stats monitor ../logs/ingestion_stream.log
+```
+___from tenant2___
+```shell
+python mysimbdp/messagingsystem/streamingestmonitor/receive_report.py tenant2-stats monitor ../logs/ingestion_stream.log
+```
+The first argument is the topic, the second the consumer group and the last one is the log with messagingsystem stream logs.
+
+The consumer (streamingestmonitor) already has logic to receive this reports and logs them accordingly.
+

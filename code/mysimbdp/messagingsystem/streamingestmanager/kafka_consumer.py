@@ -108,7 +108,7 @@ consumer = Consumer({
     "auto.offset.reset": "earliest"
 })
 
-consumer.subscribe([args.topic])
+consumer.subscribe([args.topic, 'stream-monitor'])
 
 while True:
     msg = consumer.poll(1.0)
@@ -120,11 +120,17 @@ while True:
         continue
     else:
         data = json.loads(msg.value().decode('utf-8'))
-        if validate(args.topic) == 0:
-            insert_data(args.topic, data)
-            print(f"Received message: {data}")
+        if data["type"]:
+            if data["type"] == "ERROR":
+                logging.error(f"{data['content']}")
+            else:
+                logging.info(f"{data['content']}")
         else:
-            logging.error(f"{args.topic} An error occurred in the validation process")
+            if validate(args.topic) == 0:
+                insert_data(args.topic, data)
+                print(f"Received message: {data}")
+            else:
+                logging.error(f"{args.topic} An error occurred in the validation process")
 
 
 consumer.close()

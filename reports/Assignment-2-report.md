@@ -304,12 +304,13 @@ provide me with their table name and fields so the schema can be created accordi
     ```json
    {
     "date": "2023-03-16",
-   "avg_ingestion_time": 0.002,
+   "avg_delivery_time": 0.002,
    "total_messages": 15000
    }
    ```
    Where the time is measured in seconds. That information will be gathered from the logs of the clientstreamingestapp. 
-    This could definitely be automated, however for now the report will be done manually.
+    This could definitely be automated, however for now the report will be sent manually every day (I added an argument for
+    the date, so it can be tested with different values).
 5. TBD
 
 ## Part 3 - Integration and Extension

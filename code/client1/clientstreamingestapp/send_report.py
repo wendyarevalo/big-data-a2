@@ -39,14 +39,13 @@ with open(args.log_file, "r") as log_file:
         match = time_regex.match(line)
         if match:
             timestamp_str = line.split()[0]
-            print(timestamp_str)
             timestamp = datetime.datetime.strptime(timestamp_str, "%Y-%m-%d")
             if timestamp.date() == datetime.datetime.strptime(args.date, "%Y-%m-%d").date():
                 durations.append(float(match.group(1)))
 
 report = {
     "date": args.date,
-    "avg_ingestion_time": 0.0,
+    "avg_delivery_time": 0.0,
     "total_messages": 0
    }
 if not durations:
@@ -55,7 +54,7 @@ if not durations:
     producer.poll(1)
     sys.exit(1)
 
-report["avg_ingestion_time"] = statistics.mean(durations)
+report["avg_delivery_time"] = statistics.mean(durations)
 report["total_messages"] = len(durations)
 
 print(report)

@@ -183,8 +183,8 @@ OSError: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: ti
 2023-03-15 21:58:31,250 - WARNING: Host 172.20.0.4:9042 has been marked down
 2023-03-15 21:58:31,259 - ERROR: tenant2 an error occurred during ingestion <Error from server: code=2000 [Syntax error in CQL query] message="line 1:201 mismatched input 'll' expecting EOF (INSERT INTO comments_by_subreddit JSON'{"created_utc": "2015-05-01 05:42:22", "subreddit": "AfterEffects", "id": "cqurbxf", "author": "brendanderp", "body": "The closing thought there is a good one. I'[ll]...)">
 2023-03-15 21:58:31,265 - INFO: tenant1 Finished ingesting one message in 0.0021 seconds
-2023-03-15 21:58:31,280 - INFO: tenant2 Finished ingesting one message in 0.007218 seconds
-2023-03-15 21:58:31,290 - INFO: tenant1 Finished ingesting one message in 0.00283 seconds
+2023-03-16 21:58:31,280 - INFO: tenant2 Finished ingesting one message in 0.007218 seconds
+2023-03-16 21:58:31,290 - INFO: tenant1 Finished ingesting one message in 0.00283 seconds
 2023-03-15 21:58:31,299 - INFO: tenant2 Finished ingesting one message in 0.002506 seconds
 2023-03-15 21:58:31,313 - INFO: tenant1 Finished ingesting one message in 0.003377 seconds
 2023-03-15 21:58:31,319 - INFO: tenant2 Finished ingesting one message in 0.002491 seconds
@@ -4559,7 +4559,6 @@ OSError: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: ti
 2023-03-16 18:12:00,940 - INFO: tenant1 Finished ingesting one message in 0.002193 seconds
 2023-03-16 18:12:00,960 - INFO: tenant1 Finished ingesting one message in 0.003977 seconds
 2023-03-16 18:12:00,980 - INFO: tenant1 Finished ingesting one message in 0.002342 seconds
-2023-03-16 18:12:00,997 - INFO: tenant1 Finished ingesting one message in 0.002582 seconds
 2023-03-16 18:12:01,016 - INFO: tenant1 Finished ingesting one message in 0.002344 seconds
 2023-03-16 18:12:01,035 - INFO: tenant1 Finished ingesting one message in 0.002385 seconds
 2023-03-16 18:12:01,055 - INFO: tenant1 Finished ingesting one message in 0.00204 seconds
@@ -32122,3 +32121,77 @@ OSError: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: ti
 2023-03-16 19:09:34,628 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 510.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
 2023-03-16 19:18:09,664 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 528.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
 2023-03-16 19:27:02,705 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 600.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 19:37:07,712 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 510.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 19:45:42,774 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 600.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 19:55:47,793 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 600.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 20:05:52,816 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 510.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 20:14:27,910 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 588.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 20:24:20,966 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 576.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 20:34:02,052 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 552.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 20:43:19,125 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 570.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 20:52:54,202 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 600.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:02:59,294 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 600.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:32:55,246 - WARNING: Failed to create connection pool for new host 172.20.0.4:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3175, in cassandra.cluster.Session.add_or_renew_pool.run_add_or_renew_pool
+  File "cassandra/pool.py", line 402, in cassandra.pool.HostConnection.__init__
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+  File "cassandra/connection.py", line 831, in cassandra.connection.Connection.factory
+  File "/Users/wendyarevalo/Library/CloudStorage/OneDrive-Personal/Documents OneDrive/assignment-2-100517312/venv/lib/python3.9/site-packages/cassandra/io/asyncorereactor.py", line 344, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 898, in cassandra.connection.Connection._connect_socket
+OSError: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:32:55,256 - ERROR: Failed to submit task to executor
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3175, in cassandra.cluster.Session.add_or_renew_pool.run_add_or_renew_pool
+  File "cassandra/pool.py", line 402, in cassandra.pool.HostConnection.__init__
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+  File "cassandra/connection.py", line 831, in cassandra.connection.Connection.factory
+  File "/Users/wendyarevalo/Library/CloudStorage/OneDrive-Personal/Documents OneDrive/assignment-2-100517312/venv/lib/python3.9/site-packages/cassandra/io/asyncorereactor.py", line 344, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 898, in cassandra.connection.Connection._connect_socket
+OSError: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 199, in cassandra.cluster.run_in_executor.new_f
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 161, in submit
+    raise RuntimeError('cannot schedule new futures after shutdown')
+RuntimeError: cannot schedule new futures after shutdown
+2023-03-16 21:33:17,605 - WARNING: Failed to create connection pool for new host 172.20.0.4:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3175, in cassandra.cluster.Session.add_or_renew_pool.run_add_or_renew_pool
+  File "cassandra/pool.py", line 402, in cassandra.pool.HostConnection.__init__
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+  File "cassandra/connection.py", line 831, in cassandra.connection.Connection.factory
+  File "/Users/wendyarevalo/Library/CloudStorage/OneDrive-Personal/Documents OneDrive/assignment-2-100517312/venv/lib/python3.9/site-packages/cassandra/io/asyncorereactor.py", line 344, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 898, in cassandra.connection.Connection._connect_socket
+OSError: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:33:17,614 - WARNING: Host 172.20.0.4:9042 has been marked down
+2023-03-16 21:33:23,855 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 1.94 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:33:30,835 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 3.52 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:33:39,461 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 8.64 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:33:53,186 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 17.44 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:34:12,825 - INFO: tenant1 report is normal
+2023-03-16 21:34:12,826 - INFO: tenant2 report is normal
+2023-03-16 21:34:12,826 - INFO: tenant2 report is normal
+2023-03-16 21:34:12,826 - INFO: tenant2 report is normal
+2023-03-16 21:34:12,826 - INFO: tenant2 report is normal
+2023-03-16 21:34:12,826 - INFO: tenant2 report is normal
+2023-03-16 21:34:12,826 - INFO: tenant2 report is normal
+2023-03-16 21:34:12,826 - ERROR: tenant2 send more messages than the ones ingested.
+2023-03-16 21:34:12,826 - ERROR: tenant2 send more messages than the ones ingested.
+2023-03-16 21:34:12,826 - INFO: tenant1 report is normal
+2023-03-16 21:34:12,826 - INFO: tenant1 report is normal
+2023-03-16 21:34:12,826 - ERROR: tenant2 send more messages than the ones ingested.
+2023-03-16 21:34:12,826 - ERROR: tenant2 send more messages than the ones ingested.
+2023-03-16 21:34:12,826 - INFO: tenant1 report is normal
+2023-03-16 21:34:12,827 - INFO: tenant1 report is normal
+2023-03-16 21:34:12,827 - INFO: tenant1 report is normal
+2023-03-16 21:34:15,656 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 28.48 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:34:49,226 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 64.0 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:35:09,631 - ERROR: tenant2 send more messages than the ones ingested.
+2023-03-16 21:35:58,306 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 108.8 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
+2023-03-16 21:37:52,138 - WARNING: Error attempting to reconnect to 172.20.0.4:9042, scheduling retry in 289.28 seconds: [Errno None] Tried connecting to [('172.20.0.4', 9042)]. Last error: timed out
